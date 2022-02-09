@@ -239,4 +239,29 @@ try(Connection conn = DriverManager.getConnection(connectionUrl, user, pwd)) {
 }
 ```
 
+### Daten löschen
+
+Auch das Löschen von Datensätzen unterschiedet sich kaum vom Aktualisieren bestehender oder Einfügen neuer Daten, außgenommen dem Delete-Statement selbst.
+
+```java
+try(Connection conn = DriverManager.getConnection(connectionUrl, user, pwd)) {
+  System.out.println("Verbindung zur DB hergestellt!");
+
+  PreparedStatement preparedStatement = conn.prepareStatement(
+          "DELETE FROM `student` WHERE `student`.`id` = ?");
+
+  try {
+      preparedStatement.setInt(1, 5);
+      int rowAffected = preparedStatement.executeUpdate(); //liefert die Anzahl der betroffenen Datensätze
+
+      System.out.println(rowAffected + " Datensatz/Datensätze aktualisiert");
+  } catch (SQLException ex) {
+      System.out.println("Fehler beim löschen eines Datensatzes: " + ex.getMessage());
+  }
+
+} catch(SQLException e)  {
+  System.out.println("Fehler bei Aufbau der Verbindung zur DB: " + e.getMessage());
+}
+```
+
 ## JDBC und DAO
