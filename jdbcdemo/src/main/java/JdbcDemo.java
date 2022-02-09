@@ -15,6 +15,35 @@ public class JdbcDemo {
 
         deleteStudentDemo(8);
         selectALlDemo();
+
+        findAllByNameLike("g");
+    }
+
+    private static void findAllByNameLike(String searchName) {
+        System.out.println("\nFind all by Name DEMO mit JDBC");
+
+        String connectionUrl = "jdbc:mysql://10.77.0.110:3306/jdbcdemo";
+        String user = "root";
+        String pwd = "123";
+
+        try(Connection conn = DriverManager.getConnection(connectionUrl, user, pwd)) {
+            System.out.println("Verbindung zur DB hergestellt!");
+
+            PreparedStatement preparedStatement = conn.prepareStatement("SELECT * FROM `student` WHERE `student`.`name` LIKE ?");
+            preparedStatement.setString(1,"%"+searchName+"%");
+            ResultSet rs = preparedStatement.executeQuery();
+
+            //next() liefert solange true, bis Datensätze existieren
+            while (rs.next()) {
+                int id = rs.getInt("id"); //holt mir die Daten der Spalte id
+                String name = rs.getString("name");
+                String email = rs.getString("email");
+                System.out.println("Student aus der DB: ID " + id + ", NAME " + name + ", EMAIL " + email);
+            }
+
+        } catch(SQLException e)  {
+            System.out.println("Fehler bei Aufbau der Verbindung zur DB: " + e.getMessage());
+        }
     }
 
     public static void selectALlDemo() {
