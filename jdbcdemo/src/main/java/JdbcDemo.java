@@ -6,7 +6,11 @@ public class JdbcDemo {
         System.out.println("JDBC Demo!");
 
         selectALlDemo();
-        insertDemo();
+
+        /*insertDemo();
+        selectALlDemo();*/
+
+        updateStudentDemo();
         selectALlDemo();
     }
 
@@ -50,13 +54,41 @@ public class JdbcDemo {
                     "INSERT INTO `student` (`name`, `email`) VALUES (?, ?)"); //? wegen-SQL Injection
 
             try {
-                preparedStatement.setString(1, "Clemens Kerber");
-                preparedStatement.setString(2, "clemens@hotmail.com");
+                preparedStatement.setString(1, "Martin Rieger"); //die Nummer steht für das Fragezeichen, also 1. Fragezeichen
+                preparedStatement.setString(2, "martin@outlook.com");
                 int rowAffected = preparedStatement.executeUpdate(); //liefert die Anzahl der betroffenen Datensätze
 
-                System.out.println(rowAffected + " Datensätze eingefügt");
+                System.out.println(rowAffected + " Datensatz/Datensätze eingefügt");
             } catch (SQLException ex) {
                 System.out.println("Fehler beim erstellen eines Datensatzes: " + ex.getMessage());
+            }
+
+        } catch(SQLException e)  {
+            System.out.println("Fehler bei Aufbau der Verbindung zur DB: " + e.getMessage());
+        }
+    }
+
+    public static void updateStudentDemo() {
+        System.out.println("\nUpdate DEMO mit JDBC");
+
+        String connectionUrl = "jdbc:mysql://10.77.0.110:3306/jdbcdemo";
+        String user = "root";
+        String pwd = "123";
+
+        try(Connection conn = DriverManager.getConnection(connectionUrl, user, pwd)) {
+            System.out.println("Verbindung zur DB hergestellt!");
+
+            PreparedStatement preparedStatement = conn.prepareStatement(
+                    "UPDATE `student` SET `name` = ?, `email` = ? WHERE `student`.`id` = 5"); //? wegen-SQL Injection
+
+            try {
+                preparedStatement.setString(1, "Josef Reiter");
+                preparedStatement.setString(2, "josef@outlook.com");
+                int rowAffected = preparedStatement.executeUpdate(); //liefert die Anzahl der betroffenen Datensätze
+
+                System.out.println(rowAffected + " Datensatz/Datensätze aktualisiert");
+            } catch (SQLException ex) {
+                System.out.println("Fehler beim updaten eines Datensatzes: " + ex.getMessage());
             }
 
         } catch(SQLException e)  {
