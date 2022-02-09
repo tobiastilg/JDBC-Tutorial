@@ -145,6 +145,8 @@ Einbinden in `pom.xml`:
 
 Über den `DriverManager` (java.sql.DriverManager) wird die Verbindung aufgebaut. Beim Arbeiten mit Datenbanken können häufig Exceptions auftreten, um die man sich zusätzlich kümmern muss.
 
+Etwas ungewöhlich ist, dass innerhalb der try-catch "Bedingung" die Connection erstellt wird. Dies muss nicht gemacht werden, jedoch ersprat man sich dann den sehr wichtigen Schritt, die Datenbankverbindung wieder zu schließen (conn.close() geschieht automatisch).
+
 ```java
 String connectionUrl = "jdbc:mysql://10.77.0.110:3306/jdbcdemo";
 String user = "root";
@@ -159,7 +161,7 @@ try(Connection conn = DriverManager.getConnection(connectionUrl, user, pwd)) {
 
 Wird der Datenbankclient in IntelliJ mit der Datenbank verbunden, so funktioniert auch code completion bei SQL Statements.
 
-
+### Daten abfragen
 
 Über die aufgebaute Connenction in unserer try-catch Bedingung können nur Statements ausgeführt werden. Diese müssen (wie bei PDO) `prepared` und `executed` werden. Zurückgeliefert wird dann ein ResultSet, über das man iterieren kann. Somit lassen sich dann Daten auslesen.
 
@@ -182,6 +184,32 @@ try(Connection conn = DriverManager.getConnection(connectionUrl, user, pwd)) {
 
 } catch(SQLException e)  {
     System.out.println("Fehler bei Aufbau der Verbindung zur DB: " + e.getMessage());
+}
+```
+
+### Daten einfügen
+
+Beim einfügen von Daten muss darauf geachtet werden, dass im SQL Statement selbst Platzhalter verwendet werden, die später über das PreparedStatement gesetzt werden. Sonst können SQL-Injections entstehen, die massive Probleme verursachen können. Ein Unterschied zum Select-Statement ist, dass die execute Methode nicht executeQuery() sonder `executeUpdate()` lautet.
+
+```java
+try(Connection conn = DriverManager.getConnection(connectionUrl, user, pwd)) {
+  System.out.println("Verbindung zur DB hergestellt!");
+
+  PreparedStatement preparedStatement = conn.prepareStatement(
+          "INSERT INTO `student` (`name`, `email`) VALUES (?, ?)"); //? wegen SQL-Injection
+
+  try {
+      preparedStatement.setString(1, "Clemens Kerber");
+      preparedStatement.setString(2, "clemens@hotmail.com");
+      int rowAffected = preparedStatement.executeUpdate(); //liefert die Anzahl der betroffenen Datensätze
+
+      System.out.println(rowAffected + " Datensätze eingefügt");
+  } catch (SQLException ex) {
+      System.out.println("Fehler beim erstellen eines Datensatzes: " + ex.getMessage());
+  }
+
+} catch(SQLException e)  {
+  System.out.println("Fehler bei Aufbau der Verbindung zur DB: " + e.getMessage());
 }
 ```
 

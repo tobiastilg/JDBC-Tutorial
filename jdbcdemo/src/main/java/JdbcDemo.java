@@ -4,14 +4,14 @@ public class JdbcDemo {
 
     public static void main(String[] args) {
         System.out.println("JDBC Demo!");
-        //INSERT INTO `student` (`name`, `email`) VALUES ('Mathias Rudig', 'mathias@icloud.com');
-        //SELECT * FROM `student` WHERE `name` LIKE '%Tobias%';
 
+        selectALlDemo();
+        insertDemo();
         selectALlDemo();
     }
 
     public static void selectALlDemo() {
-        System.out.println("Select DEMO mit JDBC");
+        System.out.println("\nSelect DEMO mit JDBC");
 
         String connectionUrl = "jdbc:mysql://10.77.0.110:3306/jdbcdemo";
         String user = "root";
@@ -29,6 +29,34 @@ public class JdbcDemo {
                 String name = rs.getString("name");
                 String email = rs.getString("email");
                 System.out.println("Student aus der DB: ID " + id + ", NAME " + name + ", EMAIL " + email);
+            }
+
+        } catch(SQLException e)  {
+            System.out.println("Fehler bei Aufbau der Verbindung zur DB: " + e.getMessage());
+        }
+    }
+
+    public static void insertDemo() {
+        System.out.println("\nInsert DEMO mit JDBC");
+
+        String connectionUrl = "jdbc:mysql://10.77.0.110:3306/jdbcdemo";
+        String user = "root";
+        String pwd = "123";
+
+        try(Connection conn = DriverManager.getConnection(connectionUrl, user, pwd)) {
+            System.out.println("Verbindung zur DB hergestellt!");
+
+            PreparedStatement preparedStatement = conn.prepareStatement(
+                    "INSERT INTO `student` (`name`, `email`) VALUES (?, ?)"); //? wegen-SQL Injection
+
+            try {
+                preparedStatement.setString(1, "Clemens Kerber");
+                preparedStatement.setString(2, "clemens@hotmail.com");
+                int rowAffected = preparedStatement.executeUpdate(); //liefert die Anzahl der betroffenen Datensätze
+
+                System.out.println(rowAffected + " Datensätze eingefügt");
+            } catch (SQLException ex) {
+                System.out.println("Fehler beim erstellen eines Datensatzes: " + ex.getMessage());
             }
 
         } catch(SQLException e)  {
