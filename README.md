@@ -1,6 +1,6 @@
-# JDBC - Datenbankzugriff mit Java #
+# JDBC - Datenbankzugriff mit Java
 
-## Entwicklungumgebung ##
+## Entwicklungumgebung
 
 Bestehender Ubuntu-Server mit Docker inkl. docker-compose
 
@@ -123,7 +123,7 @@ volumes:
   dbdocker_mysql:
 ```
 
-## JDBC Intro ##
+## JDBC Intro
 
 JDBC steht für Java Database Connectivity und stellt eine Datenbankschnittstelle für ein Java Programm und eine Datenbank dar.
 
@@ -141,7 +141,7 @@ Einbinden in `pom.xml`:
 </dependency>
 ```
 
-### Verbindung herstellen ###
+### Verbindung herstellen
 
 Über den `DriverManager` (java.sql.DriverManager) wird die Verbindung aufgebaut. Beim Arbeiten mit Datenbanken können häufig Exceptions auftreten, um die man sich zusätzlich kümmern muss.
 
@@ -157,6 +157,32 @@ try(Connection conn = DriverManager.getConnection(connectionUrl, user, pwd)) {
 }
 ```
 
-## Datenbankverbindnung ##
+Wird der Datenbankclient in IntelliJ mit der Datenbank verbunden, so funktioniert auch code completion bei SQL Statements.
 
-## JDBC und DAO ##
+
+
+Über die aufgebaute Connenction in unserer try-catch Bedingung können nur Statements ausgeführt werden. Diese müssen (wie bei PDO) `prepared` und `executed` werden. Zurückgeliefert wird dann ein ResultSet, über das man iterieren kann. Somit lassen sich dann Daten auslesen.
+
+Der try-catch Block hilf uns hier wieder um Fehler zu erkennen. Optional könnte man auch mehrere try-catch Blöcke ineinander erstellen, um Fehler genauer zu definieren.
+
+```java
+try(Connection conn = DriverManager.getConnection(connectionUrl, user, pwd)) {
+    System.out.println("Verbindung zur DB hergestellt!");
+
+    PreparedStatement preparedStatement = conn.prepareStatement("SELECT * FROM `student`");
+    ResultSet rs = preparedStatement.executeQuery();
+
+    //next() liefert solange true, bis Datensätze existieren
+    while (rs.next()) {
+        int id = rs.getInt("id"); //holt mir die Daten Spalte id
+        String name = rs.getString("name");
+        String email = rs.getString("email");
+        System.out.println("Student aus der DB: ID " + id + ", NAME " + name + ", EMAIL " + email);
+    }
+
+} catch(SQLException e)  {
+    System.out.println("Fehler bei Aufbau der Verbindung zur DB: " + e.getMessage());
+}
+```
+
+## JDBC und DAO
