@@ -300,3 +300,22 @@ public class MySqlDatabaseConnection {
 
 Um eine gute Erweiterbarkeit zu gewährleisten wird eine abstrakte Basisentitätsklasse erzeugt, von der jede Domänenklasse erben kann. Sie implementiert die ID der Entitäten. Zusätzlich werden in den jeweiligen Settern die Attribute/Datenfelder validiert bzw. auf Gültigkeit überprüft (Exception).
 
+### DAO Pattern
+
+Jedes DAO bzw. in unserem Fall `Repository` erbt von einen BaseRepository. Dieses Interface verwendet Generics (Generische Klassen), also müssen alle weiteren Repositories, die davon erben, Typinformationen für die "Platzhalter" angeben. Das Interface stellt dann Standarddatenbankoperationen (CRUD) mit den Typen bereit.
+
+```java
+/**
+ * @param <T> steht für ein Entity
+ * @param <I> steht für eine ID
+ */
+public interface BaseRepository<T,I> {
+    Optional<T> insert(T entity);
+    Optional<T> getById(I id);
+    List<T> getAll();
+    Optional<T> update(T entity);
+    void deleteById(I id);
+}
+```
+
+![DAO-Pattern](/DAO-Pattern.PNG)
