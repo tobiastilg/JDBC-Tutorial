@@ -264,4 +264,6 @@ try(Connection conn = DriverManager.getConnection(connectionUrl, user, pwd)) {
 }
 ```
 
-## JDBC und DAO
+## DAO - Data Access Object
+
+Das Data Access Object oder Datenzugriffsobjekt ist ein Entwurfsmuster, das dazu verwendet wird um möglicht einfach die angesprochene Datenquelle zu tauschen (https://de.wikipedia.org/wiki/Data_Access_Object).
