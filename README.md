@@ -267,3 +267,31 @@ try(Connection conn = DriverManager.getConnection(connectionUrl, user, pwd)) {
 ## DAO - Data Access Object
 
 Das Data Access Object oder Datenzugriffsobjekt ist ein Entwurfsmuster, das dazu verwendet wird um möglicht einfach die angesprochene Datenquelle zu tauschen (https://de.wikipedia.org/wiki/Data_Access_Object).
+
+## Kurssystem
+
+Gesteuert wird die Applikation über ein Kommandozeilenmenü (CLI).
+
+### Datenbankverbindung
+
+Mithilfe des Singleton Patterns kann sichergestellt werden, dass immer nur eine Datenbankverbindung hergestellt wird. Umgesetzt wird es mit einem privaten Konstruktor und einer statischen Methode.
+
+```java
+public class MySqlDatabaseConnection {
+
+    private static Connection con = null;
+
+    private MySqlDatabaseConnection() {
+    }
+
+    public static Connection getConnection(String url, String user, String pwd) throws ClassNotFoundException, SQLException {
+        if (con != null) {
+            return con;
+        } else {
+            Class.forName("com.mysql.cj.jdbc.Driver"); //überprüfen oder Diver Klasse existiert - wirft ClassNotFoundException
+            con = DriverManager.getConnection(url, user, pwd); //wirft SQLException
+            return con;
+        }
+    }
+}
+```
