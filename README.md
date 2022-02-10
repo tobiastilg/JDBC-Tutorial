@@ -295,3 +295,8 @@ public class MySqlDatabaseConnection {
     }
 }
 ```
+
+### Domänenklasse
+
+Um eine gute Erweiterbarkeit zu gewährleisten wird eine abstrakte Basisentitätsklasse erzeugt, von der jede Domänenklasse erben kann. Sie implementiert die ID der Entitäten. Zusätzlich werden in den jeweiligen Settern die Attribute/Datenfelder validiert bzw. auf Gültigkeit überprüft (Exception).
+
