@@ -6,6 +6,9 @@ import domain.CourseType;
 import java.util.List;
 import java.sql.Date;
 
+/**
+ * Zugriffsinterface - unabhängig von der Technologie
+ */
 public interface MyCourseRepository extends BaseRepository<Course, Long> {
     List<Course> findAllCoursesByName(String name);
     List<Course> findAllCoursesByDescription(String description);

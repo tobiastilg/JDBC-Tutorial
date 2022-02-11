@@ -131,7 +131,7 @@ public class Course extends BaseEntity {
     @Override
     public String toString() {
         return "Course{" +
-                "id= xxx" +
+                "id='" + this.getId() + '\'' + //aus Mutterklasse holen
                 "name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", hours=" + hours +

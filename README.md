@@ -318,4 +318,78 @@ public interface BaseRepository<T,I> {
 }
 ```
 
+Ein auf die Domänenklasse zugeschnittenes DAO (zB MyCourseRepository) erbt von diesem BaseRepository und definiert die weiteren Zugriffsmethoden. Auf dieses wird von außen zugegriffen, damit man technologieunabhängig bleibt. Schlussendlich wird für das DAO eine Klasse erstellt, die dann die Methoden ausimplementiert (sowohl aus dem Base- als auch aus dem DomänenRepository).
+
 ![DAO-Pattern](/DAO-Pattern.PNG)
+
+### DAO Impelmentierung
+
+#### GetAll
+
+Innerhalb der konkreten Repositorys werden dann die definierten Methoden aus den Inetrfaces ausimplementiert. Die Methode getAll() bekommen wir aus unserem BaseRepository.
+
+Interessant ist hier das ORM das wir selbst durchführen. Die Liste, die wir an unsere CLI weitergeben, hält ausschließlich Objekte, wodurch keine Abhängigkeit zwischen Datenbank und Anzeige entsteht.
+
+```java
+public List<Course> getAll() {
+    String sql = "SELECT * FROM `courses`";
+    try {
+        PreparedStatement preparedStatement = con.prepareStatement(sql);
+        ResultSet resultSet = preparedStatement.executeQuery();
+        ArrayList<Course> courseList = new ArrayList<>();
+        while (resultSet.next()) {
+            courseList.add(new Course( //ORM findet hier statt
+                    resultSet.getLong("id"),
+                    resultSet.getString("name"),
+                    resultSet.getString("description"),
+                    resultSet.getInt("hours"),
+                    resultSet.getDate("begindate"),
+                    resultSet.getDate("enddate"),
+                    CourseType.valueOf(resultSet.getString("coursetype"))
+                    )
+            );
+        }
+        return courseList;
+    } catch (SQLException e) {
+        throw new DatabaseException("Database error occurred!");
+    }
+}
+```
+
+#### GetById
+
+Um uns nur einen Datensatz auf Basis der ID aus der Datenbank zu holen, verwenden wir die Methode getById(). Ihr wird eine ID mitgegeben und über eine Hilfsmethode wird erstmal überprüft ob überhaupt ein Eintrag mit dieser ID existiert. Falls ja, wird dieser ausgelesen und die eigehenden Daten werden wieder als Objekt zurückgeliefert.
+
+```java
+/**
+* @param id des Kurses der gesucht ist
+* @return einen Kurs (falls vorhanden)
+*/
+@Override
+public Optional<Course> getById(Long id) {
+  Assert.notNull(id);
+  if (countCoursesInDbWithId(id) == 0) { //überprüft, ob ein Eintrag mit dieser ID existiert 
+      return Optional.empty();
+  } else {
+      try {
+          String sql = "SELECT * FROM `courses` WHERE `id` = ?";
+          PreparedStatement preparedStatement = con.prepareStatement(sql);
+          preparedStatement.setLong(1, id);
+          ResultSet resultSet = preparedStatement.executeQuery();
+          resultSet.next(); //springt zum ersten Eintrag
+          Course course = new Course( //ORM
+                  resultSet.getLong("id"),
+                  resultSet.getString("name"),
+                  resultSet.getString("description"),
+                  resultSet.getInt("hours"),
+                  resultSet.getDate("begindate"),
+                  resultSet.getDate("enddate"),
+                  CourseType.valueOf(resultSet.getString("coursetype"))
+          );
+          return Optional.of(course);
+      } catch (SQLException e) {
+          throw new DatabaseException(e.getMessage());
+      }
+  }
+}
+```
