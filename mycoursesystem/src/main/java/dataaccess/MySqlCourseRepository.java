@@ -17,9 +17,40 @@ public class MySqlCourseRepository implements MyCourseRepository {
         this.con = MySqlDatabaseConnection.getConnection("jdbc:mysql://10.77.0.110:3306/kurssystem", "root", "123");
     }
 
+    /**
+     * Fügt einen Kurs dem System hinzu
+     * @param entity
+     * @return den eingefügten Kurs
+     */
     @Override
     public Optional<Course> insert(Course entity) {
-        return Optional.empty();
+        Assert.notNull(entity);
+
+        try {
+            String sql = "INSERT INTO `courses` (`name`, `description`, `hours`, `begindate`, `enddate`, `coursetype`) VALUES (?, ?, ?, ?, ?, ?)";
+            PreparedStatement preparedStatement = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS); //speichert auch den Schüssel ab
+            preparedStatement.setString(1, entity.getName()); //ORM (von außen nach innen - in die Datenbank)
+            preparedStatement.setString(2, entity.getDescription());
+            preparedStatement.setInt(3, entity.getHours());
+            preparedStatement.setDate(4, entity.getBeginDate());
+            preparedStatement.setDate(5, entity.getEndDate());
+            preparedStatement.setString(6, entity.getCourseType().toString());
+
+            int affectedRows = preparedStatement.executeUpdate();
+            if (affectedRows == 0) { //wenn keine Spalten betroffen sind (wenn Insert nicht funktioniert hat)
+                return Optional.empty();
+            }
+
+            ResultSet generatedKeys = preparedStatement.getGeneratedKeys(); //liefert den Schlüssel zurück
+            if (generatedKeys.next()) { //wenn ein Key innerhalb prepareStatement existiert (dazu Statement.RETURN_GENERATED_KEYS)
+                return this.getById(generatedKeys.getLong(1)); //holt sich das eben erstellte Objekt mit ID und gibt es zurück
+            } else {
+                return Optional.empty();
+            }
+
+        } catch (SQLException e) {
+            throw new DatabaseException(e.getMessage());
+        }
     }
 
     /**
@@ -55,6 +86,7 @@ public class MySqlCourseRepository implements MyCourseRepository {
     }
 
     /**
+     * Hilfsmethode
      * Liefert 1 zurück, wenn ein Eintrag mit dieser ID existiert - sonst 0
      * @param id
      * @return

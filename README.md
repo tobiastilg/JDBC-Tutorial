@@ -393,3 +393,46 @@ public Optional<Course> getById(Long id) {
   }
 }
 ```
+
+#### Create
+
+Beim enfügen muss auf die Validierung der Eingaben (UI-Validierung) geachtet werden. Diese wird bestenfalls in der Anzeige selber (CLI) implementiert. Über `Statement.RETURN_GENERATED_KEYS` kann im preparedStatement der Schlüssel des Datensatzes hinterlegt werden. So wird nach des Ausführen des Insert-Befehls, das Objekt wieder aus der Datenbank geholt und zurückgegeben und erhält somit dann seine ID.
+
+```java
+/**
+     * Fügt einen Kurs dem System hinzu
+     * @param entity
+     * @return den eingefügten Kurs
+     */
+    @Override
+    public Optional<Course> insert(Course entity) {
+        Assert.notNull(entity);
+
+        try {
+            String sql = "INSERT INTO `courses` (`name`, `description`, `hours`, `begindate`, `enddate`, `coursetype`) VALUES (?, ?, ?, ?, ?, ?)";
+            PreparedStatement preparedStatement = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS); //speichert auch den Schüssel ab
+            preparedStatement.setString(1, entity.getName()); //ORM (von außen nach innen - in die Datenbank)
+            preparedStatement.setString(2, entity.getDescription());
+            preparedStatement.setInt(3, entity.getHours());
+            preparedStatement.setDate(4, entity.getBeginDate());
+            preparedStatement.setDate(5, entity.getEndDate());
+            preparedStatement.setString(6, entity.getCourseType().toString());
+
+            int affectedRows = preparedStatement.executeUpdate();
+            if (affectedRows == 0) { //wenn keine Spalten betroffen sind (wenn Insert nicht funktioniert hat)
+                return Optional.empty();
+            }
+
+            ResultSet generatedKeys = preparedStatement.getGeneratedKeys(); //liefert den Schlüssel zurück
+            if (generatedKeys.next()) { //wenn ein Key innerhalb prepareStatement existiert (dazu Statement.RETURN_GENERATED_KEYS)
+                return this.getById(generatedKeys.getLong(1)); //holt sich das eben erstellte Objekt mit ID und gibt es zurück
+            } else {
+                return Optional.empty();
+            }
+
+        } catch (SQLException e) {
+            throw new DatabaseException(e.getMessage());
+        }
+    }
+```
+
