@@ -436,3 +436,46 @@ Beim enfügen muss auf die Validierung der Eingaben (UI-Validierung) geachtet we
     }
 ```
 
+#### Update
+
+Das Update funktioniert im Großen und Ganzen wie die Insert-Methode. Unsere CLI muss sich zwar zusätzlich darum kümmern ob eine Entity mit dieser ID vorhanden ist, jedoch muss sich nicht nicht die ID aus der Datenbank geholt werden, da ja bereits ein Datensatz existiert. Ansonsten ist der Vorgang aber sehr ähnlich.
+
+```java
+/**
+     * Ändert einen Kurs im System ab
+     * @param entity das geupdatet werden soll
+     * @return den geupdateten Kurs
+     */
+    @Override
+    public Optional<Course> update(Course entity) {
+        Assert.notNull(entity); //muss diese nicht weiter geworfen werden - oder geht das automatisch?
+
+        String sql = "UPDATE `courses` SET `name` = ?, `description` = ?, `hours` = ?, `begindate` = ?, `enddate` = ?, `coursetype` = ? " +
+                "WHERE `courses`.`id` = ?";
+
+        if (countCoursesInDbWithId(entity.getId()) == 0) {
+            return Optional.empty();
+        } else {
+            try {
+                PreparedStatement preparedStatement = con.prepareStatement(sql);
+                preparedStatement.setString(1, entity.getName());
+                preparedStatement.setString(2, entity.getDescription());
+                preparedStatement.setInt(3, entity.getHours());
+                preparedStatement.setDate(4, entity.getBeginDate());
+                preparedStatement.setDate(5, entity.getEndDate());
+                preparedStatement.setString(6, entity.getCourseType().toString());
+                preparedStatement.setLong(7, entity.getId());
+
+                int affectedRows = preparedStatement.executeUpdate(); //Statement ausführen
+                if (affectedRows == 0) { //wenn keine Spalten betroffen sind (wenn Update nicht funktioniert hat)
+                    return Optional.empty();
+                } else {
+                    return this.getById(entity.getId()); //geupdatetes Objekt holen
+                }
+
+            } catch (SQLException e) {
+                throw new DatabaseException(e.getMessage());
+            }
+        }
+    }
+```

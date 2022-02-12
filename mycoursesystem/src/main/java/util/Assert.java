@@ -1,7 +1,7 @@
 package util;
 
 /**
- * Hilfsklasse - übernimmt Nullprüfungen
+ * Hilfsklasse - übernimmt Objekt-Nullprüfungen
  */
 public class Assert {
 
