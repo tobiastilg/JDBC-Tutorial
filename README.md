@@ -189,7 +189,7 @@ try(Connection conn = DriverManager.getConnection(connectionUrl, user, pwd)) {
 
 ### Daten einfügen
 
-Beim einfügen von Daten muss darauf geachtet werden, dass im SQL Statement selbst Platzhalter verwendet werden, die später über das PreparedStatement gesetzt werden. Sonst können SQL-Injections entstehen, die massive Probleme verursachen können. Ein Unterschied zum Select-Statement ist, dass die execute Methode nicht executeQuery() sonder `executeUpdate()` lautet.
+Beim einfügen von Daten muss darauf geachtet werden, dass im SQL Statement selbst Platzhalter verwendet werden, die später über das PreparedStatement gesetzt werden. Sonst können SQL-Injections entstehen, die massive Probleme verursachen können. Ein Unterschied zum Select-Statement ist, dass die execute Methode nicht executeQuery() sonder `executeUpdate()` lautet, da sich etwas in der Datenbank ändert.
 
 ```java
 try(Connection conn = DriverManager.getConnection(connectionUrl, user, pwd)) {
@@ -477,5 +477,37 @@ Das Update funktioniert im Großen und Ganzen wie die Insert-Methode. Unsere CLI
                 throw new DatabaseException(e.getMessage());
             }
         }
+    }
+```
+
+#### Delete
+
+Die Löschoperation ist recht einfach zu implementieren, da nur darauf geachtet werden muss, ob der Datensatz existiert. Hier stellt sich jedoch die Frage, die man der UI mitteilen möchte, ob das Löschen auch funktioniert hat oder nicht.  
+
+```java
+/**
+     * Löscht einen Kurs aus dem System
+     * @param id des Kurses der gelöscht werden soll
+     */
+    @Override
+    public boolean deleteById(Long id) {
+        Assert.notNull(id);
+        String sql = "DELETE FROM `courses` WHERE `id` = ?";
+
+        try {
+            if (countCoursesInDbWithId(id) == 1) {
+                PreparedStatement preparedStatement = con.prepareStatement(sql);
+                preparedStatement.setLong(1, id);
+                int affectedRows = preparedStatement.executeUpdate();
+                //wäre es hier nicht besser, noch auf "affectedRows" zu überprüfen - und sonst (k)ein Optional.empty() zurückzugeben (kein, weil ja gelöscht)
+                //Video 11, Minute 9 (Homogenität? boolean oder Optional<Course>)
+                if (affectedRows != 0) { //wenn keine Spalten betroffen sind (wenn Update nicht funktioniert hat)
+                    return true;
+                }
+            }
+        } catch (SQLException sqlException) {
+            throw new DatabaseException(sqlException.getMessage());
+        }
+        return false;
     }
 ```

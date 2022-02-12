@@ -142,7 +142,7 @@ public class MySqlCourseRepository implements MyCourseRepository {
      */
     @Override
     public Optional<Course> update(Course entity) {
-        Assert.notNull(entity); //muss diese nicht weiter geworfen werden - oder geht das automatisch?
+        Assert.notNull(entity); //muss die Exception nicht weiter geworfen werden - oder geht das automatisch (oder behandeln)?
 
         String sql = "UPDATE `courses` SET `name` = ?, `description` = ?, `hours` = ?, `begindate` = ?, `enddate` = ?, `coursetype` = ? " +
                 "WHERE `courses`.`id` = ?";
@@ -161,7 +161,7 @@ public class MySqlCourseRepository implements MyCourseRepository {
                 preparedStatement.setLong(7, entity.getId());
 
                 int affectedRows = preparedStatement.executeUpdate(); //Statement ausführen
-                if (affectedRows == 0) { //wenn keine Spalten betroffen sind (wenn Update nicht funktioniert hat)
+                if (affectedRows == 0) { //wenn keine Spalten betroffen sind (wenn Update nicht funktioniert hat (Datenbankfehler))
                     return Optional.empty();
                 } else {
                     return this.getById(entity.getId()); //geupdatetes Objekt holen
@@ -173,9 +173,30 @@ public class MySqlCourseRepository implements MyCourseRepository {
         }
     }
 
+    /**
+     * Löscht einen Kurs aus dem System
+     * @param id des Kurses der gelöscht werden soll
+     */
     @Override
-    public void deleteById(Long id) {
+    public boolean deleteById(Long id) {
+        Assert.notNull(id);
+        String sql = "DELETE FROM `courses` WHERE `id` = ?";
 
+        try {
+            if (countCoursesInDbWithId(id) == 1) {
+                PreparedStatement preparedStatement = con.prepareStatement(sql);
+                preparedStatement.setLong(1, id);
+                int affectedRows = preparedStatement.executeUpdate();
+                //wäre es hier nicht besser, noch auf "affectedRows" zu überprüfen - und sonst ein Optional.empty() zurückzugeben
+                //Video 11, Minute 9 (Homogenität? boolean oder Optional<Course>)
+                if (affectedRows != 0) { //wenn keine Spalten betroffen sind (wenn Update nicht funktioniert hat)
+                    return true;
+                }
+            }
+        } catch (SQLException sqlException) {
+            throw new DatabaseException(sqlException.getMessage());
+        }
+        return false;
     }
 
     @Override

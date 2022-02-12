@@ -44,7 +44,7 @@ public class Cli {
                     updateCourseDetails();
                     break;
                 case "5":
-                    System.out.println("xxx!");
+                    deleteCourse();
                     break;
                 case "6":
                     System.out.println("xxx!");
@@ -57,6 +57,25 @@ public class Cli {
             }
         }
         scan.close();
+    }
+
+    private void deleteCourse() {
+        try {
+            System.out.println("Welchen Kurs möchten Sie löschen? Bitte ID eingeben: ");
+            Long courseIdToDelete = Long.parseLong(scan.nextLine());
+            boolean wurdeGeloescht = repo.deleteById(courseIdToDelete);
+            if (wurdeGeloescht) {
+                System.out.println("Kurs mit ID " + courseIdToDelete + " gelöscht!");
+            } else {
+                System.out.println("Kurs mit der gegebenen ID nicht in der Datenbank!");
+            }
+        } catch (IllegalArgumentException illegalArgumentException) { //wegen parseLong
+            System.out.println("Eingabefehler: " + illegalArgumentException.getMessage());
+        } catch (DatabaseException databaseException) {
+            System.out.println("Datenbankfehler beim Löschen: " + databaseException.getMessage());
+        } catch (Exception exception) {
+            System.out.println("Unbekannter Fehler beim Update eines Kurses: " + exception.getMessage());
+        }
     }
 
     private void updateCourseDetails() {
@@ -116,7 +135,7 @@ public class Cli {
         } catch (InvalidValueException invalidValueException) {
             System.out.println("Kursdaten nicht korrekt angegeben: " + invalidValueException.getMessage());
         } catch (DatabaseException databaseException) {
-            System.out.println("Datenbankfehler beim Einfügen: " + databaseException.getMessage());
+            System.out.println("Datenbankfehler beim Aktualisieren: " + databaseException.getMessage());
         } catch (Exception exception) {
             System.out.println("Unbekannter Fehler beim Update eines Kurses: " + exception.getMessage());
         }
@@ -211,7 +230,7 @@ public class Cli {
     private void showMenue() {
         System.out.println("\n------------------- KURSMANAGEMENT -------------------");
         System.out.println("(1) Kurs eingeben \t (2) Alle Kurse anzeigen \t (3) Kursdetails anzeigen");
-        System.out.println("(4) Kursdetails ändern \t (5) xxx \t (6) xxx");
+        System.out.println("(4) Kursdetails ändern \t (5) Kurs löschen \t (6) xxx");
         System.out.println("(x) ENDE");
     }
 
