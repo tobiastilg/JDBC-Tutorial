@@ -189,7 +189,7 @@ try(Connection conn = DriverManager.getConnection(connectionUrl, user, pwd)) {
 
 ### Daten einfügen
 
-Beim einfügen von Daten muss darauf geachtet werden, dass im SQL Statement selbst Platzhalter verwendet werden, die später über das PreparedStatement gesetzt werden. Sonst können SQL-Injections entstehen, die massive Probleme verursachen können. Ein Unterschied zum Select-Statement ist, dass die execute Methode nicht executeQuery() sonder `executeUpdate()` lautet, da sich etwas in der Datenbank ändert.
+Beim einfügen von Daten muss darauf geachtet werden, dass im SQL Statement selbst Platzhalter verwendet werden, die später über das PreparedStatement gesetzt werden. Sonst können SQL-Injections entstehen, die massive Probleme verursachen können. Ein Unterschied zum Select-Statement ist, dass die execute Methode nicht executeQuery() sonder `executeUpdate()` lautet, da sich etwas in der Datenbank ändert. Außerdem wird kein ResultSet sondern ein Integer zurückgeliefert, damit man weiß, wie viele Einträge bearbeitet wurden (bzw. wie viele "Rows affected" wurden).
 
 ```java
 try(Connection conn = DriverManager.getConnection(connectionUrl, user, pwd)) {
