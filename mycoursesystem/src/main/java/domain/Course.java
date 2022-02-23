@@ -132,7 +132,7 @@ public class Course extends BaseEntity {
     public String toString() {
         return "Course{" +
                 "id='" + this.getId() + '\'' + //aus Mutterklasse holen
-                "name='" + name + '\'' +
+                ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", hours=" + hours +
                 ", beginDate=" + beginDate +

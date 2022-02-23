@@ -1,5 +1,7 @@
-package dataaccess;
+package dataaccess.course;
 
+import dataaccess.DatabaseException;
+import dataaccess.MySqlDatabaseConnection;
 import domain.Course;
 import domain.CourseType;
 import util.Assert;
@@ -9,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class MySqlCourseRepository implements MyCourseRepository {
+public class MySqlCourseRepository implements CourseRepository {
 
     private Connection con;
 
@@ -25,6 +27,7 @@ public class MySqlCourseRepository implements MyCourseRepository {
     @Override
     public Optional<Course> insert(Course entity) {
         Assert.notNull(entity);
+        //Exception kann im Methodenkopf, muss aber nicht weitergeworfen werden - funktioniert automatisch! (RuntimeException)
 
         try {
             String sql = "INSERT INTO `courses` (`name`, `description`, `hours`, `begindate`, `enddate`, `coursetype`) VALUES (?, ?, ?, ?, ?, ?)";
@@ -129,7 +132,7 @@ public class MySqlCourseRepository implements MyCourseRepository {
      */
     @Override
     public Optional<Course> update(Course entity) {
-        Assert.notNull(entity); //muss die Exception nicht weiter geworfen werden - oder geht das automatisch (oder behandeln)?
+        Assert.notNull(entity); //muss die Exception nicht weiter geworfen werden - oder geht das automatisch (oder behandeln) > automatisch!
 
         String sql = "UPDATE `courses` SET `name` = ?, `description` = ?, `hours` = ?, `begindate` = ?, `enddate` = ?, `coursetype` = ? " +
                 "WHERE `courses`.`id` = ?";

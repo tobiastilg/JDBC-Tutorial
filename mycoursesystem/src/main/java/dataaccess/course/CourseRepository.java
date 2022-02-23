@@ -1,5 +1,6 @@
-package dataaccess;
+package dataaccess.course;
 
+import dataaccess.BaseRepository;
 import domain.Course;
 import domain.CourseType;
 
@@ -9,7 +10,7 @@ import java.sql.Date;
 /**
  * Zugriffsinterface - unabhängig von der Technologie
  */
-public interface MyCourseRepository extends BaseRepository<Course, Long> {
+public interface CourseRepository extends BaseRepository<Course, Long> {
     List<Course> findAllCoursesByName(String name);
     List<Course> findAllCoursesByDescription(String description);
     List<Course> findAllCoursesByNameOrDescription(String searchText);

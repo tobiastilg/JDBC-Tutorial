@@ -1,5 +1,26 @@
 # JDBC - Datenbankzugriff mit Java
 
+- [JDBC - Datenbankzugriff mit Java](#jdbc---datenbankzugriff-mit-java)
+  - [Entwicklungumgebung](#entwicklungumgebung)
+  - [JDBC Intro](#jdbc-intro)
+    - [Maven](#maven)
+    - [Verbindung herstellen](#verbindung-herstellen)
+    - [Daten abfragen](#daten-abfragen)
+    - [Daten einfügen](#daten-einfügen)
+    - [Daten ändern](#daten-ändern)
+    - [Daten löschen](#daten-löschen)
+  - [DAO - Data Access Object](#dao---data-access-object)
+  - [Kurssystem](#kurssystem)
+    - [Datenbankverbindung](#datenbankverbindung)
+    - [Domänenklasse](#domänenklasse)
+    - [DAO Pattern](#dao-pattern)
+    - [DAO Impelmentierung](#dao-impelmentierung)
+      - [GetAll](#getall)
+      - [GetById](#getbyid)
+      - [Create](#create)
+      - [Update](#update)
+      - [Delete](#delete)
+
 ## Entwicklungumgebung
 
 Bestehender Ubuntu-Server mit Docker inkl. docker-compose
@@ -318,9 +339,9 @@ public interface BaseRepository<T,I> {
 }
 ```
 
-Ein auf die Domänenklasse zugeschnittenes DAO (zB MyCourseRepository) erbt von diesem BaseRepository und definiert die weiteren Zugriffsmethoden. Auf dieses wird von außen zugegriffen, damit man technologieunabhängig bleibt. Schlussendlich wird für das DAO eine Klasse erstellt, die dann die Methoden ausimplementiert (sowohl aus dem Base- als auch aus dem DomänenRepository).
+Ein auf die Domänenklasse zugeschnittenes DAO (zB CourseRepository) erbt von diesem BaseRepository und definiert die weiteren Zugriffsmethoden. Auf dieses wird von außen zugegriffen, damit man technologieunabhängig bleibt. Schlussendlich wird für das DAO eine Klasse erstellt, die dann die Methoden ausimplementiert (sowohl aus dem Base- als auch aus dem DomänenRepository).
 
-![DAO-Pattern](/DAO-Pattern.PNG)
+![DAO-Pattern](DAO-Pattern.PNG)
 
 ### DAO Impelmentierung
 
