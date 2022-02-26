@@ -20,6 +20,9 @@
       - [Create](#create)
       - [Update](#update)
       - [Delete](#delete)
+  - [Buchungen](#buchungen)
+    - [Entity Relationship Diagram](#entity-relationship-diagram)
+    - [Klassendiagramm](#klassendiagramm)
 
 ## Entwicklungumgebung
 
@@ -341,7 +344,7 @@ public interface BaseRepository<T,I> {
 
 Ein auf die Domänenklasse zugeschnittenes DAO (zB CourseRepository) erbt von diesem BaseRepository und definiert die weiteren Zugriffsmethoden. Auf dieses wird von außen zugegriffen, damit man technologieunabhängig bleibt. Schlussendlich wird für das DAO eine Klasse erstellt, die dann die Methoden ausimplementiert (sowohl aus dem Base- als auch aus dem DomänenRepository).
 
-![DAO-Pattern](DAO-Pattern.PNG)
+![DAO-Pattern](img/DAO-Pattern.PNG)
 
 ### DAO Impelmentierung
 
@@ -532,3 +535,32 @@ Die Löschoperation ist recht einfach zu implementieren, da nur darauf geachtet 
         return false;
     }
 ```
+
+## Buchungen
+
+Möchte man das Programm um eine Buchung erweiten, so würde sie eine Schnittstelle zwischen den Studenten und Buchungen bilden. Durch eine Buchung kann sich ein Student für einen Kurs anmelden. Somit ist eine Buchung immer auf einen Kurs und einen Studenten zugeschnitten und kann sich so eindeutig identifizeren.
+
+Nach dem erstellen der benötigten Tabelle in der Datenbank, kann die Domänenklasse erstellt werden. Eine interessante Information, die in einer Buchung abgespeichert werden sollte wäre das Buchungsdatum. Ein BuchungsDAO bzw. `BuchungsRepository` würde wieder von dem BaseRepository erben, die Buchung als Domäne und weitere Datenbankabfragen festlegen. Dannach kann man sich um die Implementierung innerhalb eines technologieabhängigen Repositorys kümmen (zB `MySqlBookingRepository`).
+
+Unser CLI wird um ein Buchungsmanagement erweitert. Die CRUD Methoden werden auf die gleiche Art und Weise implementiert wie bei den anderen Domänenklassen. Wichtig beim Erstellen und Aktualisieren eine Buchung, muss überprüft werden, ob der Kurs der gebucht werden will und der Student der die Buchung abschließen möchte existiert.
+
+### Entity Relationship Diagram
+
+Ein Buchungs-Domänenklasse würde in unserer Datenbank wie ein `Intersection Entity` funktioniern, es würde also eine n:m Beziehung zwischen den Kursen und Studenten auflösen. Dadurch kommt es zu zwei 1:n Beziehungen, und die Buchungsentität enthält beide Fremdschlüssel.
+
+Auch eine Buchung enthält eine id als Primärschlüssel um die Datenbankkonsistenz zu erhalten. Bei einem zusammengesetzten Primary Key der beiden Foreign Key könnte ein Student, einen Kurs nur einmal buchen. Je nach Programmlogik kann dies gewünscht aber auch verheerend sein.
+Sollte beispielsweise ein Kurs nach Enddatum erneut stattfinden und es wird der bestehende Kurs innerhalb der Datenbank abgeändert, so könnte ein Student der den vorherigen Kurs bereits besucht hat, diesen nicht mehr besuchen. Wird für diesen Fall jedoch ein neuer Kurs angelegt, so wäre der zusammegesetzte Primärschlüssel empfehlenswert.
+
+Sollte ein Student oder Kurs aus der Datenbank gelöscht werden, so werden auch die dazugehörigen Buchungen gelöscht (`On Delete: Cascade`). Eine Buchung benötigt schließlich beide Informationen um existieren zu können. Es wäre sehr umständlich, alle Buchungen eines Studenten/Kurses zu löschen, bevor dieser gelöscht werden kann.
+
+![ERD](img/ERD_Aufgabe-5.png)
+
+### Klassendiagramm
+
+Die Logik der Beziehungen könnte so aussehen, dass zum Beispiel ein Kurs erst zustande kommt, wenn 5 Studenten diesen gebucht haben. Ein Student und ein Kurs können aber auch ohne Buchung existieren. Eine Buchung benötigt immer genau einen Studenten und einen Kurs.
+
+Ein Kurs benötigt unter anderem auch genau einen `CourseType`. Hier wurde eine Aggregation als Beziehung gewählt, da ein Kurs ohne Kurstyp nicht existieren kann (ist ein Teil des Ganzen), ein Kurstyp aber keinen Kurs zum Existieren benötigt.
+
+Da die Domänenklassen bis auf die Validierung (innerhalb der Setter) keine Logik enthalten, sind die Methoden im Klassendiagramm nicht dargestellt.
+
+![Klassendiagramm](img/Klassendiagramm_Aufgabe-5.png)
